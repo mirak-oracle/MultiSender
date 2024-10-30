@@ -58,7 +58,7 @@
 
         async function initializeWallet() {
             try {
-                provider = await EthereumProvider.init({
+                provider = await WalletConnectProvider.EthereumProvider.init({
                     projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Get this from https://cloud.walletconnect.com/
                     chains: [56], // BNB Chain
                     showQrModal: true
