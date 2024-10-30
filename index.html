@@ -58,12 +58,10 @@
 
         async function initializeWallet() {
             try {
-                provider = new WalletConnectProvider.default({
-                    rpc: {
-                        56: "https://bsc-rpc.publicnode.com"
-                    },
-                    chainId: 56,
-                    network: "binance",
+                provider = await EthereumProvider.init({
+                    projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Get this from https://cloud.walletconnect.com/
+                    chains: [56], // BNB Chain
+                    showQrModal: true
                 });
 
                 await provider.enable();
