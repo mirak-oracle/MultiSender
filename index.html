@@ -6,8 +6,7 @@
     <title>Token Airdrop Batch Sender</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.1/dist/web3.min.js"></script>
-    <script src="https://unpkg.com/@walletconnect/web3-provider@2.8.6/dist/umd/index.min.js"></script>
-    <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.8.6/dist/umd/index.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl">
@@ -58,10 +57,12 @@
 
         async function initializeWallet() {
             try {
-                provider = await WalletConnectProvider.EthereumProvider.init({
-                    projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Get this from https://cloud.walletconnect.com/
-                    chains: [56], // BNB Chain
-                    showQrModal: true
+                provider = new WalletConnectProvider.default({
+                    rpc: {
+                        56: "https://bsc-rpc.publicnode.com"
+                    },
+                    chainId: 56,
+                    network: "binance",
                 });
 
                 await provider.enable();
