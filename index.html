@@ -56,19 +56,27 @@
         let web3;
         let recipientsList = [];
 
-        async function initializeWallet() {
+        async function connectWallet() {
             try {
-                provider = await EthereumProvider.init({
-                    projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Get this from https://cloud.walletconnect.com/
-                    chains: [56], // BNB Chain
-                    showQrModal: true
+                // Initialize WalletConnectProvider with required options
+                provider = new WalletConnectProvider.default({
+                    projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Add your WalletConnect project ID here
+                    chains: [1, 56],  // Chain IDs for Ethereum (1) and BSC (56) or other networks you support
+                    showQrModal: true, // Show QR Code for scanning
                 });
 
+                // Enable session (triggers QR Code modal)
                 await provider.enable();
+
+                // Initialize Web3 with the WalletConnect provider
                 web3 = new Web3(provider);
-                updateStatus("Wallet connected successfully.");
+
+                document.getElementById('status').innerText = "Wallet connected!";
+                document.getElementById('status').classList.remove('hidden');
             } catch (error) {
-                updateStatus("Failed to connect wallet: " + error.message);
+                console.error("Failed to connect wallet:", error);
+                document.getElementById('status').innerText = "Failed to connect wallet: " + error.message;
+                document.getElementById('status').classList.remove('hidden');
             }
         }
 
