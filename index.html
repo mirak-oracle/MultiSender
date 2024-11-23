@@ -1,176 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Airdrop Batch Sender</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.1/dist/web3.min.js"></script>
-    <script src="https://unpkg.com/@walletconnect/web3-provider@2.8.6/dist/umd/index.min.js"></script>
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.8.6/dist/umd/index.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet Connect</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-    <body class="bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl">
-        <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">Token Airdrop Batch Sender</h2>
-        <button onclick="connectWallet()" class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Connect Wallet
-        </button>
-        <div id="status" class="mt-4 p-4 bg-gray-100 rounded-md text-sm text-gray-700 hidden"></div>
+<body class="bg-gray-900 text-white">
+  <div class="container mx-auto py-10 px-5">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-5">WalletConnect Integration</h1>
+      <button id="connectWallet" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-lg">
+        Connect Wallet
+      </button>
+      <div id="walletDetails" class="mt-5 hidden">
+        <p class="text-lg"><strong>Wallet Address:</strong> <span id="walletAddress"></span></p>
+        <p class="text-lg"><strong>Chain ID:</strong> <span id="chainId"></span></p>
+      </div>
     </div>
-<body class="bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl">
-        <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">Token Airdrop Batch Sender</h2>
-        
-        <form id="airdropForm" class="space-y-6">
-            <div>
-                <label for="recipients" class="block text-sm font-medium text-gray-700 mb-1">Recipient Addresses and Amounts (JSON or paste multiple entries):</label>
-                <textarea id="recipients" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500" rows="5" placeholder='[{"address": "0xAddress1", "amount": 100}, {"address": "0xAddress2", "amount": 200}]'></textarea>
-            </div>
-            
-            <div>
-                <label for="csvFile" class="block text-sm font-medium text-gray-700 mb-1">Or Upload CSV File (Address, Amount):</label>
-                <div class="flex items-center space-x-2">
-                    <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="parseCSV(event)">
-                    <button type="button" onclick="document.getElementById('csvFile').click()" class="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Upload CSV
-                    </button>
-                </div>
-            </div>
+  </div>
 
-            <div>
-                <label for="gasPrice" class="block text-sm font-medium text-gray-700 mb-1">Set Gas Price (Gwei):</label>
-                <input type="number" id="gasPrice" placeholder="e.g., 5" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500" />
-            </div>
-            
-            <button type="button" onclick="startAirdropProcess()" class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                Start Airdrop Process
-            </button>
-            
-            <div id="status" class="mt-4 p-4 bg-gray-100 rounded-md text-sm text-gray-700 whitespace-pre-wrap hidden"></div>
-        </form>
-    </div>
+  <script type="module">
+    import WalletConnectProvider from "@walletconnect/web3-provider";
 
-    <script>
-        const CONTRACT_ABI = 
-            [{"inputs":[{"components":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"marketingFeeReceiver","type":"address"},{"internalType":"address","name":"devFeeReceiver","type":"address"},{"internalType":"uint256","name":"marketingTaxBuy","type":"uint256"},{"internalType":"uint256","name":"marketingTaxSell","type":"uint256"},{"internalType":"uint256","name":"devTaxSell","type":"uint256"},{"internalType":"uint256","name":"devTaxBuy","type":"uint256"},{"internalType":"uint256","name":"lpTaxBuy","type":"uint256"},{"internalType":"uint256","name":"lpTaxSell","type":"uint256"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"uint256","name":"maxPercentageForWallet","type":"uint256"},{"internalType":"uint256","name":"maxPercentageForTx","type":"uint256"},{"internalType":"address","name":"swapRouter","type":"address"},{"internalType":"address","name":"newOwner","type":"address"}],"internalType":"struct WDIStandardToken.TokenInfo","name":"_tokenInfo","type":"tuple"},{"internalType":"uint256","name":"_deployerTax","type":"uint256"},{"internalType":"address","name":"_deployFeeReceiver","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"newWallet","type":"address"},{"indexed":false,"internalType":"address","name":"oldWallet","type":"address"}],"name":"DevWalletUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"newWallet","type":"address"},{"indexed":false,"internalType":"address","name":"oldWallet","type":"address"}],"name":"MarketingWalletUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"makertingTax","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"devTax","type":"uint256"},{"indexed":true,"internalType":"uint256","name":"lpTax","type":"uint256"}],"name":"TransferFee","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getDevBuyTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getDevSellTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLpBuyTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLpSellTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getMarketingBuyTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getMarketingSellTax","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getTokenInfo","outputs":[{"components":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"address","name":"marketingFeeReceiver","type":"address"},{"internalType":"address","name":"devFeeReceiver","type":"address"},{"internalType":"uint256","name":"marketingTaxBuy","type":"uint256"},{"internalType":"uint256","name":"marketingTaxSell","type":"uint256"},{"internalType":"uint256","name":"devTaxSell","type":"uint256"},{"internalType":"uint256","name":"devTaxBuy","type":"uint256"},{"internalType":"uint256","name":"lpTaxBuy","type":"uint256"},{"internalType":"uint256","name":"lpTaxSell","type":"uint256"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"uint256","name":"maxPercentageForWallet","type":"uint256"},{"internalType":"uint256","name":"maxPercentageForTx","type":"uint256"},{"internalType":"address","name":"swapRouter","type":"address"},{"internalType":"address","name":"newOwner","type":"address"}],"internalType":"struct WDIStandardToken.TokenInfo","name":"_tokenInfo","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isExcludeFromFee","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isExcludeFromTxLimit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isExcludeFromWalletLimit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxAmountForTx","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxAmountForWallet","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"bool","name":"value","type":"bool"}],"name":"setExclusionFromFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"bool","name":"value","type":"bool"}],"name":"setExclusionFromTxLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"bool","name":"value","type":"bool"}],"name":"setExclusionFromWalletLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"swapPair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"swapping","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalBuyTaxFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSellTaxFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalTaxFees","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateDevBuyTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateDevSellTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newWallet","type":"address"}],"name":"updateDevWallet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateLpBuyTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateLpSellTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateMarketingBuyTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tax","type":"uint256"}],"name":"updateMarketingSellTax","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newWallet","type":"address"}],"name":"updateMarketingWallet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"maxTx","type":"uint256"}],"name":"updateMaxTransactionAmount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"maxWallet","type":"uint256"}],"name":"updateMaxWalletAmount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"weth","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]
+    async function connectWallet() {
+      try {
+        // Initialize WalletConnect provider
+        const provider = new WalletConnectProvider({
+          rpc: {
+            1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID", // Replace with your Infura ID
+            56: "https://bsc-dataseed.binance.org", // Binance Smart Chain Mainnet
+          },
+          chainId: 1, // Default to Ethereum Mainnet
+        });
 
-        let provider;
-        let web3;
-        let recipientsList = [];
+        // Enable the provider
+        await provider.enable();
 
-        async function connectWallet() {
-            try {
-                // Initialize WalletConnectProvider with required options
-                provider = new WalletConnectProvider.default({
-                    projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Add your WalletConnect project ID here
-                    chains: [1, 56],  // Chain IDs for Ethereum (1) and BSC (56) or other networks you support
-                    showQrModal: true, // Show QR Code for scanning
-                });
+        // Create a Web3 instance
+        const web3 = new Web3(provider);
 
-                // Enable session (triggers QR Code modal)
-                await provider.enable();
+        // Get wallet details
+        const accounts = await web3.eth.getAccounts();
+        const chainId = await web3.eth.getChainId();
 
-                // Initialize Web3 with the WalletConnect provider
-                web3 = new Web3(provider);
+        // Update the UI with wallet details
+        document.getElementById("walletDetails").classList.remove("hidden");
+        document.getElementById("walletAddress").textContent = accounts[0];
+        document.getElementById("chainId").textContent = chainId;
 
-                document.getElementById('status').innerText = "Wallet connected!";
-                document.getElementById('status').classList.remove('hidden');
-            } catch (error) {
-                console.error("Failed to connect wallet:", error);
-                document.getElementById('status').innerText = "Failed to connect wallet: " + error.message;
-                document.getElementById('status').classList.remove('hidden');
-            }
-        }
+        console.log("Wallet connected:", accounts[0]);
+      } catch (error) {
+        console.error("Failed to connect wallet:", error);
+        alert("Failed to connect wallet. Please try again.");
+      }
+    }
 
-        function parseCSV(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const csv = e.target.result;
-                    const rows = csv.split("\n");
-                    recipientsList = rows.map(row => {
-                        const [address, amount] = row.split(",");
-                        return { address: address.trim(), amount: parseFloat(amount.trim()) };
-                    }).filter(entry => entry.address && !isNaN(entry.amount));
-                    document.getElementById("recipients").value = JSON.stringify(recipientsList, null, 2);
-                    updateStatus(`Loaded ${recipientsList.length} recipients from CSV.`);
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        function updateStatus(message) {
-            const statusEl = document.getElementById("status");
-            statusEl.textContent += message + "\n";
-            statusEl.classList.remove("hidden");
-            statusEl.scrollTop = statusEl.scrollHeight;
-        }
-
-        async function startAirdropProcess() {
-            if (!web3) {
-                await initializeWallet();
-            }
-            
-            updateStatus("Preparing airdrop...");
-            try {
-                const textAreaData = document.getElementById("recipients").value;
-                if (textAreaData) {
-                    recipientsList = JSON.parse(textAreaData);
-                }
-                if (recipientsList.length === 0) {
-                    throw new Error("No recipients found. Please enter manually or upload a CSV.");
-                }
-
-                await multiBatchSender();
-            } catch (error) {
-                updateStatus(`Error: ${error.message}`);
-            }
-        }
-
-        async function multiBatchSender() {
-            updateStatus("Starting token distribution...");
-            try {
-                const contractAddress = "0x28d1381763b151Cc66B5a84aB169E3EC8125055D"; // Replace with your actual contract address
-                const tokenContract = new web3.eth.Contract(CONTRACT_ABI, contractAddress);
-
-                const accounts = await web3.eth.getAccounts();
-                const senderAddress = accounts[0];
-
-                let gasPriceInput = document.getElementById("gasPrice").value;
-                let gasPrice = gasPriceInput ? web3.utils.toWei(gasPriceInput, "gwei") : await web3.eth.getGasPrice();
-                updateStatus(`Using Gas Price: ${web3.utils.fromWei(gasPrice, "gwei")} Gwei`);
-
-                for (const recipient of recipientsList) {
-                    try {
-                        const tx = tokenContract.methods.transfer(recipient.address, web3.utils.toWei(recipient.amount.toString(), "ether"));
-                        const gasEstimate = await tx.estimateGas({ from: senderAddress }).catch(error => {
-                            throw new Error(`Gas estimation failed: ${error.message}`);
-                        });
-
-                        const result = await tx.send({ from: senderAddress, gas: gasEstimate, gasPrice: gasPrice });
-                        updateStatus(`Transaction successful for ${recipient.address}: ${result.transactionHash}`);
-                    } catch (error) {
-                        updateStatus(`Transaction failed for ${recipient.address}: ${error.message}`);
-                    }
-
-                    await new Promise((resolve) => setTimeout(resolve, 2000));
-                }
-            } catch (error) {
-                updateStatus(`Error: ${error.message}`);
-            } finally {
-                updateStatus("Airdrop process completed. You can disconnect your wallet now.");
-            }
-        }
-
-        // Initialize wallet connection when the page loads
-        window.addEventListener('load', initializeWallet);
-    </script>
+    // Attach event listener to the button
+    document.getElementById("connectWallet").addEventListener("click", connectWallet);
+  </script>
 </body>
 </html>
