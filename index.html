@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wallet Connect</title>
   <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider/dist/umd/index.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white">
@@ -22,15 +22,13 @@
     </div>
   </div>
 
-  <script type="module">
-    import WalletConnectProvider from "@walletconnect/web3-provider";
-
+  <script>
     async function connectWallet() {
       try {
-        // Initialize WalletConnect provider
-        const provider = new WalletConnectProvider({
+        // Initialize WalletConnect provider using the CDN version
+        const provider = new WalletConnectProvider.default({
           rpc: {
-            1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID", // Replace with your Infura ID
+            1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID", // Replace with your Infura project ID
             56: "https://bsc-dataseed.binance.org", // Binance Smart Chain Mainnet
           },
           chainId: 1, // Default to Ethereum Mainnet
