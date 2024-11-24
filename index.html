@@ -1,67 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WalletConnect v2 Integration</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WapConnect - Premium Video Meetings for Everyone">
+    <meta name="author" content="WapConnect">
+    <title>WapConnect</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.10.0/dist/lucide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white">
-  <div class="container mx-auto py-10 px-5">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold mb-5">WalletConnect v2 Integration</h1>
-      <button id="connectWallet" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-lg">
-        Connect Wallet
-      </button>
-      <div id="walletDetails" class="mt-5 hidden">
-        <p class="text-lg"><strong>Wallet Address:</strong> <span id="walletAddress"></span></p>
-        <p class="text-lg"><strong>Chain ID:</strong> <span id="chainId"></span></p>
-      </div>
-    </div>
-  </div>
+<body class="bg-black text-white">
 
-  <script>
-    async function connectWallet() {
-      try {
-        // Initialize WalletConnect v2 provider
-        const provider = new WalletConnectProvider.default({
-          projectId: "6422e5b8dace07544ac85d82b38cc1fe", // Replace with your WalletConnect v2 Project ID
-          rpc: {
-            1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID", // Ethereum Mainnet
-            56: "https://bsc-dataseed.binance.org", // Binance Smart Chain
-          },
-          metadata: {
-            name: "My DApp",
-            description: "My WalletConnect v2 Example",
-            url: "https://example.com",
-            icons: ["https://example.com/favicon.ico"],
-          },
-        });
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-bold text-xl text-gray-800">WapConnect</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
+                    <a href="#benefits" class="text-gray-600 hover:text-gray-900">Benefits</a>
+                    <a href="#experience" class="text-gray-600 hover:text-gray-900">Experience</a>
+                    <a href="#footer" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">Sign Up</a>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-        // Enable provider
-        await provider.enable();
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Premium Video Meetings for Everyone</h1>
+            <p class="text-xl mb-8">Connect, collaborate, and communicate with crystal-clear quality.</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="startMeeting()" class="bg-white text-green-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-gray-100 transition duration-300">
+                    Start a Meeting
+                </button>
+                <button onclick="joinMeeting()" class="bg-transparent border-2 border-white text-white font-semibold py-2 px-6 rounded-lg hover:bg-white hover:text-green-600 transition duration-300">
+                    Join a Meeting
+                </button>
+            </div>
+        </div>
+    </section>
 
-        // Create a Web3 instance
-        const web3 = new Web3(provider);
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Features Section -->
+        <section id="features" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">Powerful Features</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <i data-lucide="video" class="w-12 h-12 text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">High-Quality Video</h3>
+                        <p class="text-gray-600">Crystal clear video for face-to-face interactions.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <i data-lucide="share" class="w-12 h-12 text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Screen Sharing</h3>
+                        <p class="text-gray-600">Share your screen effortlessly for better collaboration.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        <i data-lucide="lock" class="w-12 h-12 text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">End-to-End Encryption</h3>
+                        <p class="text-gray-600">Secure meetings with advanced encryption.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        // Get wallet details
-        const accounts = await web3.eth.getAccounts();
-        const chainId = await web3.eth.getChainId();
+        <!-- Benefits Section -->
+        <section id="benefits" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">Why Choose WapConnect?</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="flex items-start">
+                        <i data-lucide="check-circle" class="w-6 h-6 text-green-600 mr-4 flex-shrink-0"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">Connect Anywhere</h3>
+                            <p class="text-gray-600">Join meetings from any device, anywhere in the world.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i data-lucide="zap" class="w-6 h-6 text-green-600 mr-4 flex-shrink-0"></i>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">Boost Productivity</h3>
+                            <p class="text-gray-600">Collaborate effectively with screen sharing and interactive tools.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-        // Update the UI with wallet details
-        document.getElementById("walletDetails").classList.remove("hidden");
-        document.getElementById("walletAddress").textContent = accounts[0];
-        document.getElementById("chainId").textContent = chainId;
+    <!-- Footer -->
+    <footer id="footer" class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p>© 2024 WapConnect. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
-        console.log("Wallet connected:", accounts[0]);
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        alert("Failed to connect wallet. Please try again.");
-      }
-    }
+    <!-- Scripts -->
+    <script>
+        function startMeeting() {
+            window.location.href = "https://meet.jit.si";
+        }
 
-    // Attach event listener to the button
-    document.getElementById("connectWallet").addEventListener("click", connectWallet);
-  </script>
+        function joinMeeting() {
+            const meetingId = prompt("Please enter the meeting ID:");
+            if (meetingId) {
+                window.location.href = `https://meet.jit.si/${meetingId}`;
+            }
+        }
+
+        lucide.createIcons();
+    </script>
 </body>
 </html>
